@@ -1,0 +1,14 @@
+{
+	"region": "region",
+	"retentionFilter":[
+		{
+			"Name":"tag:Backup",
+			"Values":["True"]
+		},
+		{
+			"Name":"tag:Retention",
+			"Values":["True"]
+		}
+	],
+	"retentionDays": 7
+}
