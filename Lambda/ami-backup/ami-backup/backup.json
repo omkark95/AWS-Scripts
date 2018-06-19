@@ -1,0 +1,16 @@
+{
+	"region":"region",
+	"backupFilter":[
+		{
+			"Name":"tag:Backup",
+			"Values":["True"]
+		}
+	],
+	"tagsForTheBackup":[
+		{
+			"Key":"Retention",
+			"Value":"True"
+		}
+	],
+	"bucketName": "bucketName"
+}

@@ -1,0 +1,20 @@
+{
+	"region":"ap-south-1",
+	"backupFilter":[
+		{
+			"Name":"tag:Backup",
+			"Values":["True"]
+		}
+	],
+	"tagsForTheBackup":[
+		{
+			"Key":"Retention",
+			"Value":"True"
+		}
+	],
+	"sesRegion":"eu-west-1",
+	"sesFromAddress":"email@email.com",
+	"sesToAdresses":["email@email.com"],
+	"htmlFile":"mail.html",
+	"bucketName": "bucketName"
+}
