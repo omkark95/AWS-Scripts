@@ -50,7 +50,7 @@ For the script to be downloaded and placed in the crontab we need to do the foll
 
 Once the script is added to the crontab it will monitor ECS agent every minute and alert in case of ecs agent failure.
 
-Both our failed and updated cloudformation template are available on this repository.
+**Both our failed and updated cloudformation template are available on this repository.**
 
 ## II. Placing the instance in draining state and then terminating the same.
 
