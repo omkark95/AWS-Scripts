@@ -16,7 +16,7 @@ def check_cron_file():
 
 
         #Get new cron file from s3 and copy it to a list
-        new_cron_file = open('/tmp/cron-file', 'r')
+        new_cron_file = open('/path/to/cron-file', 'r')
         new_cron_file = new_cron_file.read()
         new_cron_file_crons = new_cron_file.split('\n')
         new_cron_file_crons = filter(None, new_cron_file_crons)
@@ -33,10 +33,11 @@ def check_cron_file():
 
         new_len=len(new_crons_to_add)
 
+        #if no modifications found skip else add to the crontab 
         if old_len == new_len:
             pass
         else:
-            adding_to_cron = "echo \"$(cat /tmp/cron-file; crontab -l)\" | crontab -"
+            adding_to_cron = "echo \"$(cat /path/to/cron-file; crontab -l)\" | crontab -"
             commands.getstatusoutput(adding_to_cron)
 
     except Exception as e:

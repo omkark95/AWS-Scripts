@@ -1,0 +1,152 @@
+ServiceLaunchConfig:
+  Type: AWS::AutoScaling::LaunchConfiguration
+  DependsOn: [InstanceLogGroup]
+  Properties:
+    UserData:
+      Fn::Base64:
+        Fn::Sub: |
+          #!/bin/bash -x
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+          yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+
+          yum install -y aws-cfn-bootstrap
+
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ServiceLc
+
+          EXIT_STATUS=$?
+
+          /opt/aws/bin/cfn-signal -e $EXIT_STATUS --region ${AWS::Region} --stack ${AWS::StackName} --resource ServiceASG
+
+          echo "USERDATA COMPLETE."
+
+    SecurityGroups:
+    - Ref: ServiceASGSG
+    - Ref: ManagementSG
+    IamInstanceProfile:
+      Fn::ImportValue:
+        Fn::Sub: ${IAMStackName}-InstanceProfileArn
+    KeyName:
+      Ref: ServiceKeypair
+    InstanceType:
+      Ref: ServiceInstanceType
+    AssociatePublicIpAddress: false
+    ImageId:
+      Ref: AmiId
+  Metadata:
+    'AWS::CloudFormation::Init':
+      config:
+        packages:
+          yum:
+            awslogs: []
+        commands:
+          01_remove_timezone:
+            command: rm -f /etc/localtime
+          02_set_timezone:
+            command: !Sub 'ln -sf /usr/share/zoneinfo/${TimeZone} /etc/localtime'
+          03_update_yum:
+            command: yum update -y
+          04_remove_ntpd:
+            command: yum -y erase ntp*
+          05_install_chronyd:
+            command: yum -y install chrony
+          06_start_chrony:
+            command: service chronyd start
+          07_set_chrony_chkconfig:
+            command: chkconfig chronyd on
+          08_restart_docker:
+            command: service docker restart
+          09_install_aws_cli:
+            command: yum install aws-cli -y
+          10_add_instance_to_cluster:
+            command: !Sub 'echo ECS_CLUSTER=${ECSCluster} >> /etc/ecs/ecs.config'
+
+        files:
+          /etc/sysconfig/clock:
+            owner: root
+            group: root
+            content: !Sub |
+              ZONE="${TimeZone}"
+              UTC=true
+
+          /etc/cfn/cfn-hup.conf:
+            mode: 256
+            owner: root
+            group: root
+            content: !Sub |
+              [main]
+              stack=${AWS::StackId}
+              region=${AWS::Region}
+
+          /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+            content: !Sub >
+              [cfn-auto-reloader-hook]
+
+              triggers=post.update
+
+              path=Resources.ServiceLc.Metadata.AWS::CloudFormation::Init
+
+              action=/opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ServiceLc
+
+
+        services:
+          /etc/awslogs/awscli.conf:
+            content: !Sub |
+              [plugins]
+              cwlogs = cwlogs
+              [default]
+              region = ${AWS::Region}
+
+          /etc/awslogs/awslogs.conf:
+            content: !Sub |
+              [general]
+              state_file = /var/lib/awslogs/agent-state
+              [/var/log/dmesg]
+              file = /var/log/dmesg
+              log_group_name = ${InstanceLogGroup}
+              log_stream_name = ${ECSCluster}-dmesg
+
+              [/var/log/messages]
+              file = /var/log/messages
+              log_group_name = ${InstanceLogGroup}
+              log_stream_name = ${ECSCluster}-messages
+              datetime_format = %b %d %H:%M:%S
+
+              [/var/log/docker]
+              file = /var/log/docker
+              log_group_name = ${InstanceLogGroup}
+              log_stream_name = ${ECSCluster}-docker
+              datetime_format = %Y-%m-%dT%H:%M:%S.%f
+
+              [/var/log/ecs/ecs-init.log]
+              file = /var/log/ecs/ecs-init.log.*
+              log_group_name = ${InstanceLogGroup}
+              log_stream_name = ${ECSCluster}-ecs-init.log
+              datetime_format = %Y-%m-%dT%H:%M:%SZ
+
+              [/var/log/ecs/ecs-agent.log]
+              file = /var/log/ecs/ecs-agent.log.*
+              log_group_name = ${InstanceLogGroup}
+              log_stream_name = ${ECSCluster}-ecs-agent.log
+              datetime_format = %Y-%m-%dT%H:%M:%SZ
+
+              [/var/log/ecs/audit.log]
+              file = /var/log/ecs/audit.log.*
+              log_group_name = ${InstanceLogGroup}
+              log_stream_name = ${ECSCluster}-ecs-audit.log
+              datetime_format = %Y-%m-%dT%H:%M:%SZ
+
+          sysvinit:
+            cfn-hup:
+              enabled: true
+              ensureRunning: true
+              files:
+                - /etc/cfn/cfn-hup.conf
+                - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+
+            awslogs:
+              enabled: true
+              ensureRunning: true
+              files:
+                - /etc/awslogs/awslogs.conf
+                - /etc/awslogs/awscli.conf
