@@ -28,7 +28,7 @@ There are 3 possible solutions which we have figured out for this issue:
 **Requirement** :
 Python
 
-We fixed the issue by utilising configsets and setting up crontab for the python script to monitor the ECS agent and send slack alert.
+We fixed the issue by utilising [configsets](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html#aws-resource-init-configsetss) and setting up crontab for the python script to monitor the ECS agent and send slack alert.
 
 We added slack alerts incase the ECS agent goes down. If the script detects that the ECS agent is down it would try
 to restart the ECS once each min. Incase it passes it would send out slack alert stating the ECS agent has been restarted.
