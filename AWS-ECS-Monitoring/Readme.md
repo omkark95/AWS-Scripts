@@ -23,7 +23,8 @@ There are 3 possible solutions which we have figured out for this issue:
 
 ## I. Python Monitoring
 
-**OS** : Linux [Tested on AWS Linux] \n
+**OS** : Linux [Tested on AWS Linux]
+
 **Requirement**
   1. Python
 
@@ -44,7 +45,7 @@ For the script to be downloaded and placed in the crontab we need to do the foll
       `crontab -l | grep -v 'ecsagent-montoring'  | crontab -`
 
     4.2 Add the new cron
-    
+
       `(crontab -l ; echo "$(cat /path/to/cron-file)") | sort | uniq | crontab -`
 
 Once the script is added to the crontab it will monitor ECS agent every minute and alert in case of ecs agent failure.
