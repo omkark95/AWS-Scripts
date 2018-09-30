@@ -25,7 +25,7 @@ There are 3 possible solutions which we have figured out for this issue:
 
 **OS** : Linux [Tested on AWS Linux]
 
-**Requirement**
+**Requirement** :
 Python
 
 We fixed the issue by utilising configsets and setting up crontab for the python script to monitor the ECS agent and send slack alert.
