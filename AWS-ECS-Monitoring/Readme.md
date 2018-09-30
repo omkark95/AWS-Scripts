@@ -26,7 +26,7 @@ There are 3 possible solutions which we have figured out for this issue:
 **OS** : Linux [Tested on AWS Linux]
 
 **Requirement**
-  1. Python
+Python
 
 We fixed the issue by utilising configsets and setting up crontab for the python script to monitor the ECS agent and send slack alert.
 
@@ -38,7 +38,7 @@ For the script to be downloaded and placed in the crontab we need to do the foll
   1. Place all these files on a S3 folder or a remote directory from where they can be downloaded.
   2. Ideally download these files on the /tmp directory
   3. Change the type of the of slack.sh using `chmod +x /path/to/slack.sh`
-  4. The script can added to crontab by either utilising cron-verification.py or by simply running the following commands
+  4. The script can added to crontab by either utilising cron-verification.py or by simply running the following commands:
 
     4.1 To remove any existing ecsagent monitoring scripts.
 
