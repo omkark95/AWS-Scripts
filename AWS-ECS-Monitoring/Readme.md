@@ -37,10 +37,14 @@ For the script to be downloaded and placed in the crontab we need to do the foll
   1. Place all these files on a S3 folder or a remote directory from where they can be downloaded.
   2. Ideally download these files on the /tmp directory
   3. Change the type of the of slack.sh using `chmod +x /path/to/slack.sh`
-  4. The script can added to crontab by either utilising cron-verification.py or by simply running the following commands \n
-    4.1 To remove any existing ecsagent monitoring scripts. \n
-      `crontab -l | grep -v 'ecsagent-montoring'  | crontab -` \n
-    4.2 Add the new cron \n
+  4. The script can added to crontab by either utilising cron-verification.py or by simply running the following commands
+
+    4.1 To remove any existing ecsagent monitoring scripts.
+
+      `crontab -l | grep -v 'ecsagent-montoring'  | crontab -`
+
+    4.2 Add the new cron
+    
       `(crontab -l ; echo "$(cat /path/to/cron-file)") | sort | uniq | crontab -`
 
 Once the script is added to the crontab it will monitor ECS agent every minute and alert in case of ecs agent failure.
