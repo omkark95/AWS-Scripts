@@ -5,8 +5,8 @@ These are possible solutions created to monitor the ECS agent on a ECS cluster.
 Monitor the ECS agent on ECS cluster. Alert or drain the if the ECS agent fails/nolonger running on the ECS instance.
 
 ## Requirement Reason:
-We have noticed that if a ECS cloudformation template is update it run every individual commands
-in the cloudformation Metadata init of the Launch configuration.
+We have noticed that if a ECS cloudformation template is update it runs every individual commands
+in the cloudformation metadata init of the Launch configuration.
 
 In our case we have yum update and various other commands being executed causing the ECS agent to
 lose connectivity with the ECS cluster causing the cluster to go down. This was a verify dumb mistake one which we quickly
